@@ -70,11 +70,11 @@ int main()
 {
     RenderWindow window(VideoMode({1440, 900}), "Timber!");
 
-    Texture textureBackgound;
-    textureBackgound.loadFromFile("graphics/background.png");
+    Texture textureBackground;
+    textureBackground.loadFromFile("graphics/background.png");
 
     Sprite spriteBackground;
-    spriteBackground.setTexture(textureBackgound);
+    spriteBackground.setTexture(textureBackground);
     spriteBackground.setPosition(0, 0);
 
 
