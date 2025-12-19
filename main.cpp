@@ -202,7 +202,7 @@ int main()
                 messageText.setString("Out of time!");
                 FloatRect textRect = messageText.getLocalBounds();
                 messageText.setOrigin(textRect.left + textRect.width/2.0f, textRect.top + textRect.height/2.0f);
-
+                messageText.setPosition(1440/2.0f, 900/2.0f);
             }
 
 
@@ -248,7 +248,7 @@ int main()
                 srand((int)time(0) * 20);
                 cloud2Speed = (rand() % 200);
                 srand((int)time(0) * 20);
-                float height = (rand() % 300);
+                float height = (rand() % 300) -150;
                 spriteCloud2.setPosition(-200, height);
                 cloud2Active = true;
             }
