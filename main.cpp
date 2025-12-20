@@ -1,5 +1,6 @@
-#include<sstream>
+#include <sstream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 
 /*
@@ -159,11 +160,65 @@ int main()
         branches[i].setOrigin(220, 20);
     }
 
+
+    /*
     updateBranches(1);
     updateBranches(2);
     updateBranches(3);
     updateBranches(4);
     updateBranches(5);
+    */
+
+
+    Texture texturePlayer;
+    texturePlayer.loadFromFile("graphics/player.png");
+    Sprite spritePlayer;
+    spritePlayer.setTexture(texturePlayer);
+    spritePlayer.setPosition(480,720);
+    side playerSide = side::LEFT;
+
+    Texture textureRIP;
+    textureRIP.loadFromFile("graphics/rip.png");
+    Sprite spriteRIP;
+    spriteRIP.setTexture(textureRIP);
+    spriteRIP.setPosition(600, 860);
+
+    Texture textureAxe;
+    textureAxe.loadFromFile("graphics/axe.png");
+    Sprite spriteAxe;
+    spriteAxe.setTexture(textureAxe);
+    spriteAxe.setPosition(700, 830);
+    const float AXE_POSITION_LEFT  = 700;
+    const float AXE_POSITION_RIGHT = 1075;
+    
+    Texture textureLog;
+    textureLog.loadFromFile("graphics/log.png");
+    Sprite spriteLog;
+    spriteLog.setTexture(textureLog);
+    spriteLog.setPosition(810, 720);
+
+    bool logActive = false;
+    float logSpeedX = 1000;
+    float logSpeedY = -1500;
+    bool acceptInput = false;
+
+    SoundBuffer chopBuffer;
+    chopBuffer.loadFromFile("sound/chop.wav");
+    Sound chop;
+    chop.setBuffer(chopBuffer);
+
+    SoundBuffer deathBuffer;
+    deathBuffer.loadFromFile("sound/death.wav");
+    Sound death;
+    death.setBuffer(deathBuffer);
+
+    SoundBuffer outBuffer;
+    outBuffer.loadFromFile("sound/out_of_time.wav");
+    Sound outOfTime;
+    outOfTime.setBuffer(outBuffer);
+
+
+
 
 
 
@@ -172,10 +227,22 @@ int main()
     {
         
         Event event;
+        /*
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed)
                 window.close();
+        }
+        */
+
+        while(window.pollEvent(event))
+        {
+            if(event.type == Event::KeyReleased && !paused) 
+            {
+                acceptInput = true;
+                spriteAxe.setPosition(2000, spriteAxe.getPosition().y);  //hide Axe
+            }
+
         }
 
         if(Keyboard::isKeyPressed(Keyboard::Escape))
@@ -188,7 +255,51 @@ int main()
             paused = false;
             score  = 0;
             timeRemaining = 5.0f;
+
+            for(int i = 1; i < NUM_BRANCHES; i++)
+            {
+                branchPositions[i] = side::NONE;
+            }
+            spriteRIP.setPosition(675, 2000);
+            spritePlayer.setPosition(500, 720);
+            acceptInput = true;
+            
         }
+
+
+        if(acceptInput)
+        {
+            if(Keyboard::isKeyPressed(Keyboard::Right))
+            {
+                playerSide = side::RIGHT;
+                score++;
+                timeRemaining += (2 / score) + .15;
+                spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);
+                spritePlayer.setPosition(1200, 720);
+                updateBranches(score);
+                spriteLog.setPosition(810, 720);
+                logSpeedX = -5000;
+                logActive = true;
+                acceptInput = false;
+                chop.play();
+            }
+            if(Keyboard::isKeyPressed(Keyboard::Left))
+            {
+                playerSide = side::LEFT;
+                score++;
+                timeRemaining += (2 / score) + .15;
+                spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);
+                spritePlayer.setPosition(810, 720);
+                updateBranches(score);
+                spriteLog.setPosition(710, 720);
+                logSpeedX = 5000;
+                logActive = true;
+                acceptInput = false;
+                chop.play();
+            }
+
+        }
+
         
         if(!paused)
         {
@@ -203,6 +314,7 @@ int main()
                 FloatRect textRect = messageText.getLocalBounds();
                 messageText.setOrigin(textRect.left + textRect.width/2.0f, textRect.top + textRect.height/2.0f);
                 messageText.setPosition(1440/2.0f, 900/2.0f);
+                outOfTime.play();
             }
 
 
@@ -293,11 +405,13 @@ int main()
                 if(branchPositions[i] == side::LEFT)
                 {
                     branches[i].setPosition(500, height);
+                    branches[i].setOrigin(220, 40);
                     branches[i].setRotation(180);
                 }
                 else if(branchPositions[i] == side::RIGHT)
                 {
                     branches[i].setPosition(1200, height);
+                    branches[i].setOrigin(220, 40);
                     branches[i].setRotation(0);
                 }
                 else
@@ -305,6 +419,33 @@ int main()
                     branches[i].setPosition(3000, height);
                 }
 
+            }
+
+            if(logActive)
+            {
+                spriteLog.setPosition(
+                    spriteLog.getPosition().x + (logSpeedX * dt.asSeconds()),
+                    spriteLog.getPosition().y + (logSpeedY * dt.asSeconds())
+                );
+                if(spriteLog.getPosition().x < -100 || spriteLog.getPosition().x > 1500)
+                {
+                    logActive = false;
+                    spriteLog.setPosition(720, 720);
+                }
+            }
+
+            if(branchPositions[5] == playerSide)
+            {
+                paused = true;
+                acceptInput = false;
+                spriteRIP.setPosition(525,760);
+                spritePlayer.setPosition(2000, 660); //hide the player
+
+                messageText.setString("SQUISHED!!");
+                FloatRect textRect = messageText.getLocalBounds();
+                messageText.setOrigin(textRect.left + textRect.width/2.0f, textRect.top + textRect.height/2.0f);
+                messageText.setPosition(1440 / 2.0f, 9000 / 2.0f);
+                death.play();
             }
 
 
@@ -323,6 +464,16 @@ int main()
         }
 
         window.draw(spriteTree);
+
+        window.draw(spritePlayer);
+        window.draw(spriteAxe);
+        window.draw(spriteLog);
+        window.draw(spriteRIP);
+
+
+
+
+
         window.draw(spriteBee); 
         window.draw(scoreText);
         window.draw(timeBar);
