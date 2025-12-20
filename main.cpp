@@ -227,7 +227,7 @@ int main()
     {
         
         Event event;
-        /*
+        /* 
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed)
@@ -261,7 +261,7 @@ int main()
                 branchPositions[i] = side::NONE;
             }
             spriteRIP.setPosition(675, 2000);
-            spritePlayer.setPosition(500, 720);
+            spritePlayer.setPosition(480, 720);
             acceptInput = true;
             
         }
@@ -275,7 +275,7 @@ int main()
                 score++;
                 timeRemaining += (2 / score) + .15;
                 spriteAxe.setPosition(AXE_POSITION_RIGHT, spriteAxe.getPosition().y);
-                spritePlayer.setPosition(1200, 720);
+                spritePlayer.setPosition(1100, 720);
                 updateBranches(score);
                 spriteLog.setPosition(810, 720);
                 logSpeedX = -5000;
@@ -289,7 +289,7 @@ int main()
                 score++;
                 timeRemaining += (2 / score) + .15;
                 spriteAxe.setPosition(AXE_POSITION_LEFT, spriteAxe.getPosition().y);
-                spritePlayer.setPosition(810, 720);
+                spritePlayer.setPosition(480, 720);
                 updateBranches(score);
                 spriteLog.setPosition(710, 720);
                 logSpeedX = 5000;
